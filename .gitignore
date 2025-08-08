@@ -1,0 +1,45 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.so
+*.pyo
+
+# VS Code settings
+.vscode/
+*.code-workspace
+
+# Environment folders
+env/
+venv/
+.env/
+.venv/
+
+# Node (if you ever use npm tools)
+node_modules/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Site output (if using static site generator)
+_site/
+dist/
+build/
+
+# Backup/temporary files
+*.bak
+*.swp
+*.tmp
+*~
+
+#old files I probably don't need and files I need but don't want in the repo
+archive/
+archive/*
+archive/**
+ */
+
+# Environment variables
+.env
