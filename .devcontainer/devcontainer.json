@@ -2,7 +2,6 @@
     "name": "Python Web Dev",
     "image": "mcr.microsoft.com/devcontainers/python:3.11",
     "workspaceFolder": "/workspaces/blog",
-    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/blog,type=bind",
     "forwardPorts": [5000],
     "postCreateCommand": "pip install --upgrade pip && pip install -r requirements.txt",
     "customizations": {
