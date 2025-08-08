@@ -1,16 +1,18 @@
 {
-  "name": "Python 3",
-  "image": "mcr.microsoft.com/devcontainers/python:3",
-  "workspaceFolder": "/workspaces/blog",
-  "features": {
-    "ghcr.io/devcontainers/features/git:1": {}
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-python.python"
-      ]
-    }
-  },
-  "postCreateCommand": "pip install -r requirements.txt"
+    "name": "Python Web Dev",
+    "image": "mcr.microsoft.com/devcontainers/python:3.11",
+    "workspaceFolder": "/workspaces/blog",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/blog,type=bind",
+    "forwardPorts": [5000],
+    "postCreateCommand": "pip install --upgrade pip && pip install -r requirements.txt",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.debugpy"
+            ]
+        }
+    },
+    "remoteUser": "vscode"
 }
