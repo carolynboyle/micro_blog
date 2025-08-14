@@ -1,17 +1,23 @@
 {
-    "name": "Python Web Dev",
-    "image": "mcr.microsoft.com/devcontainers/python:3.11",
-    "workspaceFolder": "/workspaces/blog",
-    "forwardPorts": [5000],
-    "postCreateCommand": "pip install --upgrade pip && pip install -r requirements.txt",
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-python.python",
-                "ms-python.vscode-pylance",
-                "ms-python.debugpy"
-            ]
-        }
-    },
-    "remoteUser": "vscode"
+  "name": "Flask CRUD Dev",
+  "dockerFile": "Dockerfile",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "devuser",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached,selinux=Z"
+  ],
+  "forwardPorts": [5000],
+  "initializeCommand": "chmod +x .devcontainer/setup-selinux.sh && .devcontainer/setup-selinux.sh",
+  "postCreateCommand": "if [ -f requirements.txt ]; then pip install --user -r requirements.txt; fi",
+  "runArgs": [
+    "--security-opt", "label=type:container_t"
+  ]
 }
