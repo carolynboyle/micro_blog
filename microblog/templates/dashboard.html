@@ -13,7 +13,6 @@
 </div>
 
 <div class="row">
-    <!-- User Section -->
     <div class="col-lg-8">
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
@@ -21,36 +20,38 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-6 mb-3">
                         <div class="d-grid">
-                            <a href="{{ url_for('create_post') }}" class="btn btn-success btn-lg">
-                                <i class="bi bi-plus-circle"></i><br>
-                                Create Post
+                            <a href="{{ url_for('main.new_post') }}" class="btn btn-success btn-lg py-3" id="createPostBtn">
+                                <i class="bi bi-plus-circle me-2"></i>Create Post
                             </a>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-6 mb-3">
                         <div class="d-grid">
-                            <a href="{{ url_for('view_posts') }}" class="btn btn-info btn-lg">
-                                <i class="bi bi-chat-dots"></i><br>
-                                View All Posts
+                            <a href="{{ url_for('main.dashboard') }}" class="btn btn-info btn-lg py-3">
+                                <i class="bi bi-chat-dots me-2"></i>View All Posts
                             </a>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-6 mb-3">
                         <div class="d-grid">
-                            <a href="{{ url_for('search_posts') }}" class="btn btn-warning btn-lg">
-                                <i class="bi bi-search"></i><br>
-                                Search Posts
+                            <a href="#" class="btn btn-warning btn-lg py-3">
+                                <i class="bi bi-search me-2"></i>Search Posts (Soon)
                             </a>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-6 mb-3">
                         <div class="d-grid">
-                            <a href="{{ url_for('user_profile', username=user.username) }}" class="btn btn-outline-primary btn-lg">
-                                <i class="bi bi-person-badge"></i><br>
-                                My Profile
-                            </a>
+                            {% if user.username != "Guest" %}
+                                <a href="{{ url_for('main.user_profile', username=user.username) }}" class="btn btn-outline-primary btn-lg py-3">
+                                    <i class="bi bi-person-badge me-2"></i>My Profile
+                                </a>
+                            {% else %}
+                                <a href="#" class="btn btn-outline-secondary btn-lg py-3">
+                                    <i class="bi bi-person-badge me-2"></i>Register First
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -65,7 +66,6 @@
             </div>
         </div>
         
-        <!-- Recent Posts -->
         <div class="card">
             <div class="card-header">
                 <h5><i class="bi bi-clock-history"></i> Recent Posts</h5>
@@ -75,22 +75,22 @@
                     {% for post in recent_posts %}
                         <div class="border-start border-primary border-3 ps-3 mb-3">
                             <div class="small text-muted mb-1">
-                                <i class="bi bi-person"></i> {{ post.username }} • {{ post.created_at }}
+                                <i class="bi bi-person"></i> {{ post.author.username }} • {{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}
                             </div>
+                            <h6>{{ post.title }}</h6>
                             <p class="mb-0">{{ post.content }}</p>
                         </div>
                     {% endfor %}
                     <div class="text-center mt-3">
-                        <a href="{{ url_for('view_posts') }}" class="btn btn-outline-primary btn-sm">View All Posts</a>
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary btn-sm">View All Posts</a>
                     </div>
                 {% else %}
-                    <p class="text-muted">No posts yet. <a href="{{ url_for('create_post') }}">Create the first one!</a></p>
+                    <p class="text-muted">No posts yet. <a href="{{ url_for('main.new_post') }}">Create the first one!</a></p>
                 {% endif %}
             </div>
         </div>
     </div>
     
-    <!-- Admin Section -->
     <div class="col-lg-4">
         {% if user.is_admin %}
         <div class="card mb-4">
@@ -110,40 +110,86 @@
                 </div>
                 
                 <div class="d-grid gap-2">
-                    <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-people"></i> View Current Users
+                    <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-people"></i> Admin Dashboard
                     </a>
-                    <a href="{{ url_for('admin_stats') }}" class="btn btn-outline-info btn-sm">
-                        <i class="bi bi-graph-up"></i> Advanced Statistics
-                    </a>
-                </div>
-                
-                <hr>
-                <div class="d-grid gap-2">
-                    <a href="{{ url_for('export_users') }}" class="btn btn-outline-success btn-sm">
-                        <i class="bi bi-download"></i> Export Users (CSV)
-                    </a>
-                    <a href="{{ url_for('export_database') }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-database"></i> Export Database
+                    <a href="{{ url_for('main.populate_db') }}" class="btn btn-outline-info btn-sm">
+                        <i class="bi bi-database"></i> Create Test Data
                     </a>
                 </div>
             </div>
         </div>
         {% endif %}
         
-        <!-- User Info -->
         <div class="card">
             <div class="card-header">
                 <h5><i class="bi bi-person-badge"></i> Account Info</h5>
             </div>
             <div class="card-body">
+                <div class="mb-3">
+                    <label for="userSelect" class="form-label"><strong>Select User:</strong></label>
+                    <select class="form-select" id="userSelect" onchange="handleUserSwitch()">
+                        {% for u in all_users %}
+                            <option value="{{ u.id }}" {% if u.id == user.id %}selected{% endif %}>
+                                {{ u.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <hr>
+                
                 <p><strong>Username:</strong> {{ user.username }}</p>
                 <p><strong>Email:</strong> {{ user.email }}</p>
-                <p><strong>Member Since:</strong> {{ user.created_at[:10] }}</p>
+                <p><strong>Member Since:</strong> N/A</p>
                 {% if user.is_admin %}
                 <p><span class="badge bg-warning">Administrator</span></p>
                 {% endif %}
+                
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{{ url_for('main.register') }}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-person-plus"></i> Register New User
+                    </a>
+                    <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-outline-warning btn-sm">
+                        <i class="bi bi-shield-check"></i> Admin Dashboard
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function updateCreatePostLink(userId) {
+    const createPostBtn = document.getElementById('createPostBtn');
+    if (createPostBtn) {
+        const createPostUrl = new URL(createPostBtn.href);
+        createPostUrl.searchParams.set('user_id', userId);
+        createPostBtn.href = createPostUrl.toString();
+    }
+}
+
+function handleUserSwitch() {
+    const select = document.getElementById('userSelect');
+    const selectedUserId = select.value;
+    const currentUrl = new URL(window.location);
+    const urlUserId = currentUrl.searchParams.get('user_id');
+
+    // Only redirect if the selected user is different from the one in the URL
+    if (urlUserId !== selectedUserId) {
+        currentUrl.searchParams.set('user_id', selectedUserId);
+        window.location.href = currentUrl.toString();
+    } else {
+        // If the user is the same, just update the create post link (no reload needed)
+        updateCreatePostLink(selectedUserId);
+    }
+}
+
+// On page load, get the initial user ID from the URL or the default selected option
+document.addEventListener('DOMContentLoaded', function() {
+    const select = document.getElementById('userSelect');
+    const initialUserId = new URL(window.location).searchParams.get('user_id') || select.value;
+    updateCreatePostLink(initialUserId);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}User Activity Report - Microblog{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-info">
+            <i class="bi bi-activity"></i> User Activity Report
+        </h1>
+        <p class="text-muted">Detailed analysis of user posting patterns and behavior</p>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4><i class="bi bi-bar-chart"></i> Activity Overview</h4>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="h3 text-primary">{{ total_posts }}</div>
+                        <small class="text-muted">Total Posts Analyzed</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h3 text-success">{{ user_summary|length }}</div>
+                        <small class="text-muted">Active Users</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h3 text-warning">{{ activity_patterns.posts_by_weekday|length }}</div>
+                        <small class="text-muted">Days with Activity</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h3 text-info">{{ activity_patterns.posts_by_hour|length }}</div>
+                        <small class="text-muted">Active Hours</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- User Summary Table -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="bi bi-people"></i> User Activity Summary</h5>
+            </div>
+            <div class="card-body">
+                {% if user_summary %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Username</th>
+                                <th>Posts</th>
+                                <th>Avg Length</th>
+                                <th>Total Content</th>
+                                <th>First Post</th>
+                                <th>Latest Post</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in user_summary %}
+                            <tr>
+                                <td><strong>{{ user.username }}</strong></td>
+                                <td><span class="badge bg-primary">{{ user.post_count }}</span></td>
+                                <td>{{ "%.0f"|format(user.avg_content_length) }} chars</td>
+                                <td>{{ "%.0f"|format(user.total_content_length) }} chars</td>
+                                <td><small>{{ user.first_post }}</small></td>
+                                <td><small>{{ user.latest_post }}</small></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No user activity data available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Activity Patterns -->
+    <div class="col-lg-4">
+        <!-- Posts by Weekday -->
+        {% if activity_patterns.posts_by_weekday %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="bi bi-calendar-week"></i> Posts by Day of Week</h6>
+            </div>
+            <div class="card-body">
+                {% for day, count in activity_patterns.posts_by_weekday.items() %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>{{ day }}</span>
+                        <span class="badge bg-info">{{ count }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Posts by Hour -->
+        {% if activity_patterns.posts_by_hour %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="bi bi-clock"></i> Posts by Hour</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for hour, count in activity_patterns.posts_by_hour.items() %}
+                        <div class="col-6 mb-1">
+                            <div class="d-flex justify-content-between">
+                                <small>{{ "%02d"|format(hour) }}:00</small>
+                                <span class="badge bg-secondary badge-sm">{{ count }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Monthly Activity -->
+{% if activity_patterns.posts_by_month %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-calendar3"></i> Monthly Activity Trend</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for month, count in activity_patterns.posts_by_month.items() %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-primary">{{ count }}</h5>
+                                    <p class="card-text"><small>{{ month }}</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Navigation -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="bi bi-arrow-left-circle"></i> Navigation</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('main.analytics_dashboard') }}" class="btn btn-success">
+                        <i class="bi bi-graph-up me-2"></i>Analytics Dashboard
+                    </a>
+                    <a href="{{ url_for('main.export_analytics') }}" class="btn btn-outline-success">
+                        <i class="bi bi-download me-2"></i>Export Analytics
+                    </a>
+                    <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-outline-warning">
+                        <i class="bi bi-shield-check me-2"></i>Admin Dashboard
+                    </a>
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-house me-2"></i>Main Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

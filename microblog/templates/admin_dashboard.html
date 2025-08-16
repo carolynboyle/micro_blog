@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Microblog{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-info">
+            <i class="bi bi-eye"></i> Admin Dashboard
+        </h1>
+        <p class="text-muted">Access read-only views, analytics, and database management</p>
+    </div>
+</div>
+
+<!-- Read-Only Views Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4><i class="bi bi-eye-fill"></i> Read-Only Views</h4>
+                <p class="mb-0">View data without modification capabilities</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.readonly_users') }}" class="btn btn-outline-info btn-lg py-3">
+                                <i class="bi bi-people me-2"></i>View Users
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.readonly_posts') }}" class="btn btn-outline-primary btn-lg py-3">
+                                <i class="bi bi-chat-dots me-2"></i>View Posts
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4><i class="bi bi-graph-up"></i> Analytics & Reports</h4>
+                <p class="mb-0">Advanced data insights powered by Pandas</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.analytics_dashboard') }}" class="btn btn-success btn-lg py-3">
+                                <i class="bi bi-bar-chart me-2"></i>Analytics Dashboard
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.user_activity_report') }}" class="btn btn-outline-success btn-lg py-3">
+                                <i class="bi bi-activity me-2"></i>User Activity Report
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.export_analytics') }}" class="btn btn-outline-warning btn-lg py-3">
+                                <i class="bi bi-download me-2"></i>Export Analytics CSV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Database Initialization Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h4><i class="bi bi-database-gear"></i> Database Initialization</h4>
+                <p class="mb-0">Development and testing tools</p>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> These operations will modify or delete database content. Use carefully in development.
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-trash display-4 text-danger mb-3"></i>
+                                <h6>Clear Database</h6>
+                                <p class="text-muted small">Remove all users and posts</p>
+                                <div class="d-grid">
+                                    <a href="{{ url_for('main.create_empty_db') }}" class="btn btn-danger" 
+                                       onclick="return confirm('This will delete ALL data! Are you sure?')">
+                                        <i class="bi bi-trash me-2"></i>Clear All Data
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-database-fill display-4 text-info mb-3"></i>
+                                <h6>Populate Test Data</h6>
+                                <p class="text-muted small">Create fake users and posts with Faker</p>
+                                <div class="d-grid">
+                                    <a href="{{ url_for('main.populate_db') }}" class="btn btn-info">
+                                        <i class="bi bi-database-fill me-2"></i>Add Test Data
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-download display-4 text-secondary mb-3"></i>
+                                <h6>Export Users</h6>
+                                <p class="text-muted small">Download user data as CSV</p>
+                                <div class="d-grid">
+                                    <a href="{{ url_for('main.export_users') }}" class="btn btn-secondary">
+                                        <i class="bi bi-download me-2"></i>Export CSV
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats and Navigation -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="bi bi-bar-chart"></i> Quick Stats</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="h4 text-primary">{{ total_users or 0 }}</div>
+                        <small class="text-muted">Total Users</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h4 text-success">{{ total_posts or 0 }}</div>
+                        <small class="text-muted">Total Posts</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="bi bi-arrow-left-circle"></i> Navigation</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-house me-2"></i>Main Dashboard
+                    </a>
+                    <a href="{{ url_for('main.register') }}" class="btn btn-outline-success">
+                        <i class="bi bi-person-plus me-2"></i>Register New User
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

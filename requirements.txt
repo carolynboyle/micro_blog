@@ -7,3 +7,4 @@ wtforms            # If using standalone WTForms
 email-validator    # If validating email fields in forms
 pytest             # For unit testing
 pytest-flask       # Flask-specific pytest helpers
+pandas		   # Analytics helper

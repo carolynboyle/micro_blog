@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}All Users - Microblog{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-primary">
+            <i class="bi bi-people"></i> All Users
+        </h1>
+        <p class="text-muted">Complete list of registered users</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-table"></i> User Directory</h5>
+                <span class="badge bg-primary">{{ users|length }} Total Users</span>
+            </div>
+            <div class="card-body">
+                {% if users %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Posts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>
+                                        <i class="bi bi-person-circle me-2"></i>{{ user.username }}
+                                    </td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ user.posts|length }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-person-x display-1 text-muted"></i>
+                        <h4 class="text-muted mt-3">No Users Found</h4>
+                        <p class="text-muted">No users have been registered yet.</p>
+                        <a href="{{ url_for('main.register') }}" class="btn btn-primary">
+                            <i class="bi bi-person-plus me-2"></i>Register First User
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Admin
+                    </a>
+                    <a href="{{ url_for('main.export_users') }}" class="btn btn-success">
+                        <i class="bi bi-download me-2"></i>Export CSV
+                    </a>
+                    <a href="{{ url_for('main.register') }}" class="btn btn-primary">
+                        <i class="bi bi-person-plus me-2"></i>Add New User
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
