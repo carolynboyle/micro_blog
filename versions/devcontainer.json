@@ -1,5 +1,5 @@
 {
-  "name": "Microblog Dev",
+  "name": "Flask CRUD Dev",
   "dockerFile": "Dockerfile",
   "workspaceFolder": "/workspace",
   "remoteUser": "devuser",
@@ -11,8 +11,10 @@
       ]
     }
   },
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached,selinux=Z"
+  ],
   "forwardPorts": [5000],
-  "initializeCommand": "chmod +x .devcontainer/selinux_setup.sh && .devcontainer/selinux_setup.sh",
   "postCreateCommand": "if [ -f requirements.txt ]; then pip install --user -r requirements.txt; fi",
   "runArgs": [
     "--security-opt", "label=type:container_t"

@@ -1,0 +1,55 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  microblog-dev:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    container_name: microblog-dev-container
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/workspace:Z
+      # Optional: separate volume for Python packages to improve performance
+      - python-packages:/home/devuser/.local
+    security_opt:
+      - label=type:container_t
+    user: devuser
+    working_dir: /workspace
+    environment:
+      - FLASK_APP=microblog.app
+      - FLASK_ENV=development
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_RUN_PORT=5000
+      - PYTHONPATH=/workspace
+    # Install dependencies then start Flask
+    command: bash -c "
+      echo 'Installing Python dependencies...' &&
+      pip install --user -r requirements.txt &&
+      echo 'Starting Flask development server...' &&
+      flask run
+    "
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  # Optional: Add a database service if needed
+  # db:
+  #   image: postgres:15
+  #   container_name: microblog-db
+  #   environment:
+  #     POSTGRES_DB: microblog
+  #     POSTGRES_USER: microblog
+  #     POSTGRES_PASSWORD: password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+volumes:
+  python-packages:
+  # postgres_data:
