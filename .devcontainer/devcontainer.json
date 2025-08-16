@@ -1,7 +1,8 @@
 {
   "name": "Microblog Dev",
-  "dockerFile": "Dockerfile",
-  "workspaceFolder": "/workspace",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
   "remoteUser": "devuser",
   "customizations": {
     "vscode": {
@@ -12,9 +13,5 @@
     }
   },
   "forwardPorts": [5000],
-  "initializeCommand": "chmod +x .devcontainer/selinux_setup.sh && .devcontainer/selinux_setup.sh",
-  "postCreateCommand": "if [ -f requirements.txt ]; then pip install --user -r requirements.txt; fi",
-  "runArgs": [
-    "--security-opt", "label=type:container_t"
-  ]
+  "postCreateCommand": "if [ -f requirements.txt ]; then pip install --user -r requirements.txt; fi"
 }

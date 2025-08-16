@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Create Post - Microblog{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-pencil-square"></i> Create New Post</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="content" class="form-label">What's on your mind?</label>
+                        <textarea class="form-control" id="content" name="content" rows="4" 
+                                  maxlength="280" required placeholder="Share your thoughts..."></textarea>
+                        <div class="form-text" id="char-count">280 characters remaining</div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Post
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('content').addEventListener('input', function() {
+    const remaining = 280 - this.value.length;
+    const counter = document.getElementById('char-count');
+    counter.textContent = remaining + ' characters remaining';
+    
+    if (remaining < 0) {
+        counter.classList.add('text-danger');
+        this.classList.add('is-invalid');
+    } else if (remaining < 50) {
+        counter.classList.remove('text-danger');
+        counter.classList.add('text-warning');
+        this.classList.remove('is-invalid');
+    } else {
+        counter.classList.remove('text-danger', 'text-warning');
+        this.classList.remove('is-invalid');
+    }
+});
+</script>
+{% endblock %}

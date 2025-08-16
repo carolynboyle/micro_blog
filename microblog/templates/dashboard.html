@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Microblog{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-primary">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </h1>
+        <p class="text-muted">Welcome to your microblog dashboard, {{ user.username }}!</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- User Section -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="bi bi-person-circle"></i> User Actions</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('create_post') }}" class="btn btn-success btn-lg">
+                                <i class="bi bi-plus-circle"></i><br>
+                                Create Post
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('view_posts') }}" class="btn btn-info btn-lg">
+                                <i class="bi bi-chat-dots"></i><br>
+                                View All Posts
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('search_posts') }}" class="btn btn-warning btn-lg">
+                                <i class="bi bi-search"></i><br>
+                                Search Posts
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <a href="{{ url_for('user_profile', username=user.username) }}" class="btn btn-outline-primary btn-lg">
+                                <i class="bi bi-person-badge"></i><br>
+                                My Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-12 text-center">
+                        <div class="text-center">
+                            <div class="h3 text-primary">{{ user_posts_count }}</div>
+                            <small class="text-muted">Your Posts</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Posts -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-clock-history"></i> Recent Posts</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_posts %}
+                    {% for post in recent_posts %}
+                        <div class="border-start border-primary border-3 ps-3 mb-3">
+                            <div class="small text-muted mb-1">
+                                <i class="bi bi-person"></i> {{ post.username }} • {{ post.created_at }}
+                            </div>
+                            <p class="mb-0">{{ post.content }}</p>
+                        </div>
+                    {% endfor %}
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('view_posts') }}" class="btn btn-outline-primary btn-sm">View All Posts</a>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No posts yet. <a href="{{ url_for('create_post') }}">Create the first one!</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Section -->
+    <div class="col-lg-4">
+        {% if user.is_admin %}
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h4><i class="bi bi-shield-check"></i> Administration</h4>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <div class="h3 text-success">{{ admin_stats.total_users }}</div>
+                        <small class="text-muted">Total Users</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h3 text-info">{{ admin_stats.total_posts }}</div>
+                        <small class="text-muted">Total Posts</small>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-people"></i> View Current Users
+                    </a>
+                    <a href="{{ url_for('admin_stats') }}" class="btn btn-outline-info btn-sm">
+                        <i class="bi bi-graph-up"></i> Advanced Statistics
+                    </a>
+                </div>
+                
+                <hr>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('export_users') }}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-download"></i> Export Users (CSV)
+                    </a>
+                    <a href="{{ url_for('export_database') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-database"></i> Export Database
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- User Info -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-person-badge"></i> Account Info</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Member Since:</strong> {{ user.created_at[:10] }}</p>
+                {% if user.is_admin %}
+                <p><span class="badge bg-warning">Administrator</span></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
