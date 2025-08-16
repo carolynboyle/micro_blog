@@ -13,6 +13,7 @@
 </div>
 
 <div class="row">
+    <!-- User Section -->
     <div class="col-lg-8">
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
@@ -22,14 +23,20 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <div class="d-grid">
-                            <a href="{{ url_for('main.new_post') }}" class="btn btn-success btn-lg py-3" id="createPostBtn">
-                                <i class="bi bi-plus-circle me-2"></i>Create Post
-                            </a>
+                            {% if user.username != "Guest" %}
+                                <a href="{{ url_for('main.new_post', user_id=user.id) }}" class="btn btn-success btn-lg py-3">
+                                    <i class="bi bi-plus-circle me-2"></i>Create Post
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('main.register') }}" class="btn btn-outline-success btn-lg py-3">
+                                    <i class="bi bi-person-plus me-2"></i>Register First
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="d-grid">
-                            <a href="{{ url_for('main.dashboard') }}" class="btn btn-info btn-lg py-3">
+                            <a href="{{ url_for('main.readonly_posts') }}" class="btn btn-info btn-lg py-3">
                                 <i class="bi bi-chat-dots me-2"></i>View All Posts
                             </a>
                         </div>
@@ -66,31 +73,62 @@
             </div>
         </div>
         
+        <!-- Recent Posts with Sorting -->
         <div class="card">
-            <div class="card-header">
-                <h5><i class="bi bi-clock-history"></i> Recent Posts</h5>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-2"><i class="bi bi-clock-history"></i> Recent Posts</h5>
+                    <!-- Sorting Radio Buttons -->
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Sort posts">
+                        <input type="radio" class="btn-check" name="sortPosts" id="sortByDate" value="date" checked onclick="sortPosts('date')">
+                        <label class="btn btn-outline-primary" for="sortByDate">
+                            <i class="bi bi-calendar me-1"></i>By Date
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="sortPosts" id="sortByUser" value="user" onclick="sortPosts('user')">
+                        <label class="btn btn-outline-info" for="sortByUser">
+                            <i class="bi bi-person me-1"></i>By User
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="sortPosts" id="sortByLength" value="length" onclick="sortPosts('length')">
+                        <label class="btn btn-outline-success" for="sortByLength">
+                            <i class="bi bi-type me-1"></i>By Length
+                        </label>
+                    </div>
+                </div>
+                <span class="badge bg-primary" id="postCount">{{ posts|length }} Posts</span>
             </div>
-            <div class="card-body">
-                {% if recent_posts %}
-                    {% for post in recent_posts %}
-                        <div class="border-start border-primary border-3 ps-3 mb-3">
-                            <div class="small text-muted mb-1">
-                                <i class="bi bi-person"></i> {{ post.author.username }} • {{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}
+            <div class="card-body" id="postsContainer">
+                {% if posts %}
+                    <div id="postsList">
+                        {% for post in posts %}
+                            <div class="post-item border-start border-primary border-3 ps-3 mb-3" 
+                                 data-date="{{ post.date_posted.timestamp() }}" 
+                                 data-user="{{ post.author.username }}" 
+                                 data-length="{{ post.content|length }}">
+                                <div class="small text-muted mb-1">
+                                    <i class="bi bi-person"></i> {{ post.author.username }} • 
+                                    <i class="bi bi-calendar"></i> {{ post.date_posted.strftime('%Y-%m-%d %H:%M') }} •
+                                    <i class="bi bi-type"></i> {{ post.content|length }} chars
+                                </div>
+                                <h6 class="text-primary">{{ post.title }}</h6>
+                                <p class="mb-0">{{ post.content[:150] }}{% if post.content|length > 150 %}...{% endif %}</p>
                             </div>
-                            <h6>{{ post.title }}</h6>
-                            <p class="mb-0">{{ post.content }}</p>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                     <div class="text-center mt-3">
-                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary btn-sm">View All Posts</a>
+                        <a href="{{ url_for('main.readonly_posts') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-eye me-2"></i>View All Posts (Read-Only)
+                        </a>
                     </div>
                 {% else %}
-                    <p class="text-muted">No posts yet. <a href="{{ url_for('main.new_post') }}">Create the first one!</a></p>
+                    <p class="text-muted">No posts yet. <a href="{{ url_for('main.new_post', user_id=user.id if user.username != 'Guest' else '') }}">Create the first one!</a></p>
                 {% endif %}
             </div>
         </div>
     </div>
     
+    <!-- Admin Section -->
     <div class="col-lg-4">
         {% if user.is_admin %}
         <div class="card mb-4">
@@ -121,14 +159,16 @@
         </div>
         {% endif %}
         
+        <!-- User Info -->
         <div class="card">
             <div class="card-header">
                 <h5><i class="bi bi-person-badge"></i> Account Info</h5>
             </div>
             <div class="card-body">
+                <!-- User Selection Dropdown -->
                 <div class="mb-3">
                     <label for="userSelect" class="form-label"><strong>Select User:</strong></label>
-                    <select class="form-select" id="userSelect" onchange="handleUserSwitch()">
+                    <select class="form-select" id="userSelect" onchange="switchUser()">
                         {% for u in all_users %}
                             <option value="{{ u.id }}" {% if u.id == user.id %}selected{% endif %}>
                                 {{ u.username }}
@@ -160,36 +200,66 @@
 </div>
 
 <script>
-function updateCreatePostLink(userId) {
-    const createPostBtn = document.getElementById('createPostBtn');
-    if (createPostBtn) {
-        const createPostUrl = new URL(createPostBtn.href);
-        createPostUrl.searchParams.set('user_id', userId);
-        createPostBtn.href = createPostUrl.toString();
-    }
-}
-
-function handleUserSwitch() {
+function switchUser() {
     const select = document.getElementById('userSelect');
-    const selectedUserId = select.value;
+    const userId = select.value;
     const currentUrl = new URL(window.location);
-    const urlUserId = currentUrl.searchParams.get('user_id');
-
-    // Only redirect if the selected user is different from the one in the URL
-    if (urlUserId !== selectedUserId) {
-        currentUrl.searchParams.set('user_id', selectedUserId);
-        window.location.href = currentUrl.toString();
-    } else {
-        // If the user is the same, just update the create post link (no reload needed)
-        updateCreatePostLink(selectedUserId);
-    }
+    currentUrl.searchParams.set('user_id', userId);
+    window.location.href = currentUrl.toString();
 }
 
-// On page load, get the initial user ID from the URL or the default selected option
+function sortPosts(sortBy) {
+    const postsList = document.getElementById('postsList');
+    if (!postsList) return;
+    
+    const posts = Array.from(postsList.querySelectorAll('.post-item'));
+    
+    posts.sort((a, b) => {
+        switch(sortBy) {
+            case 'date':
+                // Sort by date (newest first)
+                return parseFloat(b.dataset.date) - parseFloat(a.dataset.date);
+            
+            case 'user':
+                // Sort by username (alphabetical)
+                return a.dataset.user.localeCompare(b.dataset.user);
+            
+            case 'length':
+                // Sort by content length (longest first)
+                return parseInt(b.dataset.length) - parseInt(a.dataset.length);
+            
+            default:
+                return 0;
+        }
+    });
+    
+    // Clear and re-append sorted posts
+    postsList.innerHTML = '';
+    posts.forEach(post => postsList.appendChild(post));
+    
+    // Update visual feedback
+    updateSortFeedback(sortBy);
+}
+
+function updateSortFeedback(sortBy) {
+    // Update the border colors to match the sort type
+    const posts = document.querySelectorAll('.post-item');
+    posts.forEach(post => {
+        post.className = post.className.replace(/border-\w+/, 'border-primary');
+        switch(sortBy) {
+            case 'user':
+                post.className = post.className.replace('border-primary', 'border-info');
+                break;
+            case 'length':
+                post.className = post.className.replace('border-primary', 'border-success');
+                break;
+        }
+    });
+}
+
+// Initialize sorting on page load
 document.addEventListener('DOMContentLoaded', function() {
-    const select = document.getElementById('userSelect');
-    const initialUserId = new URL(window.location).searchParams.get('user_id') || select.value;
-    updateCreatePostLink(initialUserId);
+    sortPosts('date'); // Default sort by date
 });
 </script>
 {% endblock %}
